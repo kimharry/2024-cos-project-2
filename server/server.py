@@ -101,10 +101,12 @@ class Server:
         temp = int.from_bytes(buf[0:1], byteorder="big", signed=True)
         humid = int.from_bytes(buf[1:2], byteorder="big", signed=True)
         power = int.from_bytes(buf[2:4], byteorder="big", signed=True)
-        month = int.from_bytes(buf[4:5], byteorder="big", signed=True)
+        # month = int.from_bytes(buf[4:5], byteorder="big", signed=True)
 
-        lst = [temp, humid, power, month]
-        logging.info("[temp, humid, power, month] = {}".format(lst))
+        # lst = [temp, humid, power, month]
+        lst = [temp, humid, power]
+        # logging.info("[temp, humid, power, month] = {}".format(lst))
+        logging.info("[temp, humid, power] = {}".format(lst))
 
         self.send_instance(lst, is_training)
 
@@ -125,7 +127,7 @@ class Server:
 
             if opcode == OPCODE_DATA:
                 logging.info("[*] data report from the edge")
-                rbuf = client.recv(5)
+                rbuf = client.recv(4)
                 logging.debug("[*] received buf: {}".format(rbuf))
                 self.parse_data(rbuf, True)
             else:
@@ -163,7 +165,7 @@ class Server:
 
             if opcode == OPCODE_DATA:
                 logging.info("[*] data report from the edge")
-                rbuf = client.recv(5)
+                rbuf = client.recv(4)
                 logging.debug("[*] received buf: {}".format(rbuf))
                 self.parse_data(rbuf, False)
             else:
