@@ -64,51 +64,60 @@ uint8_t *ProcessManager::processData(DataSet *ds, int *dlen)
 //   *dlen += 2;
 
   // 2) the average daily temperature (1 byte), the average daily humidity (1 byte), the average power data (2 bytes)
-//   int tmp, avg_humid, avg_temp, avg_power, month;
-//   avg_temp = (int) tdata->getValue();
+  int tmp, avg_humid, avg_temp, avg_power, month;
+  avg_temp = (int) tdata->getValue();
 
-//   avg_humid = (int) hdata->getValue();
+  avg_humid = (int) hdata->getValue();
 
 //   avg_power = (int) pdata->getValue();
-
-//   memset(ret, 0, BUFLEN);
-//   *dlen = 0;
-//   p = ret;
-
-//   VAR_TO_MEM_1BYTE_BIG_ENDIAN(avg_temp, p);
-//   *dlen += 1;
-//   VAR_TO_MEM_1BYTE_BIG_ENDIAN(avg_humid, p);
-//   *dlen += 1;
-//   VAR_TO_MEM_2BYTES_BIG_ENDIAN(avg_power, p);
-//   *dlen += 2;
-
-  // 3) the maximum daily temperature (1 byte), the maximum daily humidity (1 byte), the maximum power data (2 bytes)
-  int tmp, max_humid, max_temp, max_power, month;
-  max_temp = (int) tdata->getMax();
-
-  max_humid = (int) hdata->getMax();
-
-  max_power = 0;
+  avg_power = 0;
   for (int i=0; i<num; i++)
   {
     house = ds->getHouseData(i);
     pdata = house->getPowerData();
     tmp = (int)pdata->getValue();
-
-    if (tmp > max_power)
-    max_power = tmp;
+    avg_power += tmp;
   }
+  avg_power /= num;
 
   memset(ret, 0, BUFLEN);
   *dlen = 0;
   p = ret;
 
-  VAR_TO_MEM_1BYTE_BIG_ENDIAN(max_temp, p);
+  VAR_TO_MEM_1BYTE_BIG_ENDIAN(avg_temp, p);
   *dlen += 1;
-  VAR_TO_MEM_1BYTE_BIG_ENDIAN(max_humid, p);
+  VAR_TO_MEM_1BYTE_BIG_ENDIAN(avg_humid, p);
   *dlen += 1;
-  VAR_TO_MEM_2BYTES_BIG_ENDIAN(max_power, p);
+  VAR_TO_MEM_2BYTES_BIG_ENDIAN(avg_power, p);
   *dlen += 2;
+
+  // 3) the maximum daily temperature (1 byte), the maximum daily humidity (1 byte), the maximum power data (2 bytes)
+//   int tmp, max_humid, max_temp, max_power, month;
+//   max_temp = (int) tdata->getMax();
+
+//   max_humid = (int) hdata->getMax();
+
+//   max_power = 0;
+//   for (int i=0; i<num; i++)
+//   {
+//     house = ds->getHouseData(i);
+//     pdata = house->getPowerData();
+//     tmp = (int)pdata->getValue();
+
+//     if (tmp > max_power)
+//     max_power = tmp;
+//   }
+
+//   memset(ret, 0, BUFLEN);
+//   *dlen = 0;
+//   p = ret;
+
+//   VAR_TO_MEM_1BYTE_BIG_ENDIAN(max_temp, p);
+//   *dlen += 1;
+//   VAR_TO_MEM_1BYTE_BIG_ENDIAN(max_humid, p);
+//   *dlen += 1;
+//   VAR_TO_MEM_2BYTES_BIG_ENDIAN(max_power, p);
+//   *dlen += 2;
 
   return ret;
 }
