@@ -83,7 +83,7 @@ int NetworkManager::sendData(uint8_t *data, int dlen)
 
   sock = this->sock;
   // Example) data (processed by ProcessManager) consists of:
-  // Example) minimum temperature (1 byte) || minimum humidity (1 byte) || minimum power (2 bytes) || month (1 byte)
+  // Example) temperature (1 byte) || humidity (1 byte) || power (2 bytes) -> total 4 bytes
   // Example) edge -> server: opcode (OPCODE_DATA, 1 byte)
   opcode = OPCODE_DATA;
   tbs = 1; offset = 0;
@@ -95,8 +95,8 @@ int NetworkManager::sendData(uint8_t *data, int dlen)
   }
   assert(offset == tbs);
 
-  // Example) edge -> server: temperature (1 byte) || humidity (1 byte) || power (2 bytes) || month (1 byte)
-  tbs = 5; offset = 0;
+  // Example) edge -> server: temperature (1 byte) || humidity (1 byte) || power (2 bytes) -> total 4 bytes
+  tbs = 4; offset = 0;
   while (offset < tbs)
   {
     sent = write(sock, data + offset, tbs - offset);
