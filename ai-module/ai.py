@@ -154,11 +154,11 @@ class AIModule:
         accuracy = round(cp / num * 100, 2)
         return num, sequence[sidx:], prediction[sidx:], index, THRESHOLD, cp, ip, accuracy
 
-    def learning(self, name):
+    def learning(self, name, num_epochs):
         self.models[name]
         self.training[name]
         self.dimensions[name]
-        return self.models[name].learning(self.training[name], self.dimensions[name])
+        return self.models[name].learning(self.training[name], self.dimensions[name], num_epochs)
         
     def prediction(self, name, value):
         pred = self.models[name].prediction(value, self.dimensions[name])
@@ -240,13 +240,13 @@ class Trainer(Resource):
     def __init__(self):
         super(Trainer, self).__init__()
 
-    def get(self, model_id):
+    def get(self, model_id, num_epochs):
         ret = ai.get_data_info(model_id, "training")
         return make_response(jsonify(ret))
 
-    def post(self, model_id):
+    def post(self, model_id, num_epochs):
         ret = {}
-        generated = ai.learning(model_id)
+        generated = ai.learning(model_id, num_epochs)
         if generated == True:
             ret["opcode"] = "success"
         else:
@@ -254,7 +254,7 @@ class Trainer(Resource):
             ret["reason"] = "creating the model {} failed".format(model_id)
         return make_response(jsonify(ret))
 
-    def put(self, model_id):
+    def put(self, model_id, num_epochs):
         ret = {}
         if ai.has_model(model_id):
             args = json.loads(request.get_json(force=True))
@@ -357,7 +357,7 @@ def main():
     api = Api(app)
     api.add_resource(Main, '/')
     api.add_resource(ModelGenerator, '/<string:model_id>')
-    api.add_resource(Trainer, '/<string:model_id>/training')
+    api.add_resource(Trainer, '/<string:model_id>/<int:num_epochs>/training')
     api.add_resource(Tester, '/<string:model_id>/testing')
     api.add_resource(Evaluator, '/<string:model_id>/result')
 

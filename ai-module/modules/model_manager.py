@@ -38,8 +38,8 @@ class ModelManager:
     def get_error_status(self):
         return self.error
 
-    def learning(self, dm, dimension=1):
-        return self.algorithms[self.algorithm].learning(dm.get_data(), dimension)
+    def learning(self, dm, dimension=1, num_epochs=50):
+        return self.algorithms[self.algorithm].learning(dm.get_data(), dimension, num_epochs)
 
     def prediction(self, value, dimension=1):
         pred = self.algorithms[self.algorithm].prediction(value, dimension)

@@ -12,7 +12,7 @@ OPCODE_DONE = 3
 OPCODE_QUIT = 4
 
 class Server:
-    def __init__(self, name, algorithm, dimension, index, port, caddr, cport, ntrain, ntest):
+    def __init__(self, name, algorithm, dimension, index, port, caddr, cport, ntrain, ntest, num_epochs):
         logging.info("[*] Initializing the server module to receive data from the edge device")
         self.name = name
         self.algorithm = algorithm
@@ -22,6 +22,7 @@ class Server:
         self.cport = cport
         self.ntrain = ntrain
         self.ntest = ntest
+        self.num_epochs = num_epochs
         success = self.connecter()
 
         if success:
@@ -40,6 +41,7 @@ class Server:
         request['algorithm'] = self.algorithm
         request['dimension'] = self.dimension
         request['index'] = self.index
+        # request['num_epochs'] = self.num_epochs
         js = json.dumps(request)
         logging.debug("[*] To be sent to the AI module: {}".format(js))
         result = requests.post(url, json=js)
@@ -75,7 +77,7 @@ class Server:
 
     def send_instance(self, vlst, is_training):
         if is_training:
-            url = "http://{}:{}/{}/training".format(self.caddr, self.cport, self.name)
+            url = "http://{}:{}/{}/{}/training".format(self.caddr, self.cport, self.name, self.num_epochs)
         else:
             url = "http://{}:{}/{}/testing".format(self.caddr, self.cport, self.name)
         data = {}
@@ -225,6 +227,7 @@ def command_line_args():
     parser.add_argument("-x", "--ntrain", metavar="<number of instances for training>", help="Number of instances for training", type=int, default=10)
     parser.add_argument("-y", "--ntest", metavar="<number of instances for testing>", help="Number of instances for testing", type=int, default=10)
     parser.add_argument("-z", "--index", metavar="<the index number for the power value>", help="Index number for the power value", type=int, default=0)
+    parser.add_argument("-e", "--num_epochs", metavar="<number of epochs>", help="Number of epochs", type=int, default=50)
     parser.add_argument("-l", "--log", metavar="<log level (DEBUG/INFO/WARNING/ERROR/CRITICAL)>", help="Log level (DEBUG/INFO/WARNING/ERROR/CRITICAL)", type=str, default="INFO")
     args = parser.parse_args()
     return args
@@ -237,7 +240,7 @@ def main():
         logging.error("Number of instances for training or testing should be larger than 0")
         sys.exit(1)
 
-    Server(args.name, args.algorithm, args.dimension, args.index, args.lport, args.caddr, args.cport, args.ntrain, args.ntest)
+    Server(args.name, args.algorithm, args.dimension, args.index, args.lport, args.caddr, args.cport, args.ntrain, args.ntest, args.num_epochs)
 
 if __name__ == "__main__":
     main()

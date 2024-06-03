@@ -21,7 +21,7 @@ class Lstm(Algorithm):
 
     # Please implement the following functions
     # Concerning dataset, refer to the class TrainingSet
-    def learning(self, dataset, dimension=1):
+    def learning(self, dataset, dimension=1, num_epochs=50):
         training_set = []
         labels = []
         for i in range(len(dataset)-SEQUENCE_LENGTH-1):
@@ -44,7 +44,7 @@ class Lstm(Algorithm):
         self.predictor.compile(loss='mean_squared_error', optimizer='adam')
 
         try:
-            self.predictor.fit(training_set, labels, epochs=50, verbose=1)
+            self.predictor.fit(training_set, labels, epochs=num_epochs, verbose=1)
             logging.info("The {} predictor is well generated".format(self.get_name()))
         except:
             self.predictor = None
