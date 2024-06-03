@@ -112,10 +112,10 @@ int main(int argc, char *argv[])
 
 void protocol_execution(int sock)
 {
-  char msg[] = "Alice";
-  char buf[BUFLEN];
-  int tbs, sent, tbr, rcvd, offset;
-  int len;
+  char msg[] = "Alice"; // The name to be sent
+  char buf[BUFLEN]; // Buffer for receiving data
+  int tbs, sent, tbr, rcvd, offset; // Variables for tracking the number of bytes and the offset
+  int len; // Length of the name
 
   // tbs: the number of bytes to send
   // tbr: the number of bytes to receive
@@ -126,55 +126,55 @@ void protocol_execution(int sock)
   len = strlen(msg);
   printf("[*] Length information to be sent: %d\n", len);
 
-  len = htonl(len);
-  tbs = 4;
-  offset = 0;
+  len = htonl(len); // Convert the length to network byte order
+  tbs = 4; // Number of bytes to send 
+  offset = 0; // Offset for tracking the progress of sending
 
   while (offset < tbs)
   {
-    sent = write(sock, &len + offset, tbs - offset);
+    sent = write(sock, &len + offset, tbs - offset); // Send the length information
     if (sent > 0)
-      offset += sent;
+      offset += sent; // Update the offset
   }
 
   // Send the name (Alice)
-  tbs = ntohl(len);
-  offset = 0;
+  tbs = ntohl(len); // Convert the length back to host byte order
+  offset = 0; // Reset the offset
 
-  printf("[*] Name to be sent: %s\n", msg);
-  while (offset < tbs)
+  printf("[*] Name to be sent: %s\n", msg);  // Print the name to be sent
+  while (offset < tbs)  // While there are bytes left to send
   {
-    sent = write(sock, msg + offset, tbs - offset);
+    sent = write(sock, msg + offset, tbs - offset); // Send the name
     if (sent > 0)
-      offset += sent;
+      offset += sent; // Update the offset
   }
 
   // 2. Bob -> Alice: length of the name (4 bytes) || name (length bytes)
   // Receive the length information (4 bytes)
-  tbr = 4;
-  offset = 0;
+  tbr = 4; // Number of bytes to receive 
+  offset = 0; // Reset the offset
 
-  while (offset < tbr)
+  while (offset < tbr)  // While there are bytes left to receive
   {
-	  rcvd = read(sock, &len + offset, tbr - offset);
+    rcvd = read(sock, &len + offset, tbr - offset); // Receive the length information
     if (rcvd > 0)
-      offset += rcvd;
+      offset += rcvd; // Update the offset
   }
-  len = ntohl(len);
+  len = ntohl(len); // Convert the length back to host byte order
   printf("[*] Length received: %d\n", len);
 
   // Receive the name (Bob)
-  tbr = len;
-  offset = 0;
+  tbr = len; // Number of bytes to receive (name)
+  offset = 0; // Reset the offset
 
-  while (offset < tbr)
+  while (offset < tbr)  // While there are bytes left to receive
   {
-    rcvd = read(sock, buf + offset, tbr - offset);
+    rcvd = read(sock, buf + offset, tbr - offset); // Receive the name
     if (rcvd > 0)
-      offset += rcvd;
+      offset += rcvd; // Update the offset
   }
 
-	printf("[*] Name received: %s \n", buf);
+  printf("[*] Name received: %s \n", buf);  // Print the received name
 
   // Implement following the instructions below
   // Let's assume there are two opcodes:
@@ -183,58 +183,59 @@ void protocol_execution(int sock)
   // 3. Alice -> Bob: opcode (4 bytes) || arg1 (4 bytes) || arg2 (4 bytes)
   // The opcode should be 1
 
-  char *p;
-  int i, arg1, arg2;
+  char *p;  // Pointer for handling the buffer
+  int i, arg1, arg2;  // Variables for handling the arguments
 
-  memset(buf, 0, BUFLEN);
-  p = buf;
-  arg1 = 2;
-  arg2 = 5;
+  memset(buf, 0, BUFLEN); // Clear the buffer
+  p = buf; // Pointer to the buffer
+  arg1 = 2; // First argument
+  arg2 = 5; // Second argument
 
-  VAR_TO_MEM_1BYTE_BIG_ENDIAN(OPCODE_SUM, p);
-  VAR_TO_MEM_4BYTES_BIG_ENDIAN(arg1, p);
-  VAR_TO_MEM_4BYTES_BIG_ENDIAN(arg2, p);
-  tbs = p - buf;
-  offset = 0;
+  VAR_TO_MEM_1BYTE_BIG_ENDIAN(OPCODE_SUM, p); // Convert the opcode to network byte order & store it in the buffer
+  VAR_TO_MEM_4BYTES_BIG_ENDIAN(arg1, p); // Convert the first argument to network byte order & store it in the buffer
+  VAR_TO_MEM_4BYTES_BIG_ENDIAN(arg2, p); // Convert the second argument to network byte order & store it in the buffer
+  tbs = p - buf; // Calculate the number of bytes to send
+  offset = 0; // Reset the offset
 
-  printf("[*] # of bytes to be sent: %d\n", tbs);
-  printf("[*] The following bytes will be sent\n");
-  for (i=0; i<tbs; i++)
-    printf ("%02x ", buf[i]);
-  printf("\n");
+  printf("[*] # of bytes to be sent: %d\n", tbs);  // Print the number of bytes to be sent
+  printf("[*] The following bytes will be sent\n");  // Print the bytes to be sent
+  for (i=0; i<tbs; i++)  // For each byte to be sent
+    printf ("%02x ", buf[i]);  // Print the byte
+  printf("\n");  // Print a newline
 
-  while (offset < tbs)
+  while (offset < tbs)  // While there are bytes left to send
   {
-    sent = write(sock, buf + offset, tbs - offset);
+    sent = write(sock, buf + offset, tbs - offset); // Send the data
     if (sent > 0)
-      offset += sent;
+      offset += sent; // Update the offset
   }
 
   // 4. Bob -> Alice: opcode (4 bytes) || result (4 bytes)
   // The opcode should be 2
 
-  int opcode, result;
+  int opcode, result;  // Variables for storing the opcode & the result
 
-  tbr = 8; offset = 0;
-  memset(buf, 0, BUFLEN);
+  tbr = 8; // Number of bytes to receive (opcode + result)
+  offset = 0; // Reset the offset
+  memset(buf, 0, BUFLEN); // Clear the buffer
 
-  printf("[*] # of bytes to be received: %d\n", tbr);
-  while (offset < tbr)
+  printf("[*] # of bytes to be received: %d\n", tbr);  // Print the number of bytes to be received
+  while (offset < tbr)  // While there are bytes left to receive
   {
-    rcvd = read(sock, buf + offset, tbs - offset);
-    if (rcvd > 0)
-      offset += rcvd;
+    rcvd = read(sock, buf + offset, tbs - offset); // Receive the data
+    if (rcvd > 0)  // If bytes were received
+      offset += rcvd; // Update the offset
   }
 
-  printf("[*] The following bytes is received\n");
-  for (i=0; i<tbr; i++)
-    printf("%02x ", buf[i]);
+  printf("[*] The following bytes is received\n");  // Print the received bytes
+  for (i=0; i<tbr; i++)  // For each received byte
+    printf("%02x ", buf[i]);  // Print the byte
   printf("\n");
 
-  p = buf;
-  MEM_TO_VAR_4BYTES_BIG_ENDIAN(p, opcode);
+  p = buf; // Reset the pointer to the buffer
+  MEM_TO_VAR_4BYTES_BIG_ENDIAN(p, opcode); // Convert the opcode from network byte order and store it in the variable
   printf("[*] Opcode: %d\n", opcode);
-  MEM_TO_VAR_4BYTES_BIG_ENDIAN(p, result);
+  MEM_TO_VAR_4BYTES_BIG_ENDIAN(p, result); // Convert the result from network byte order and store it in the variable
   printf("[*] Result: %d\n", result);
 }
 

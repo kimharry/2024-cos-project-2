@@ -16,13 +16,7 @@ def main():
 
     # By using the requests module, please write the code following the instructions below:
     # 1) Initialize a model "my_model" with the "lstm" algorithm, the dimension 1, and the index 0
-    uri = "http://127.0.0.1:5556/my_model"
-    data = {}
-    data["algorithm"] = "lstm"
-    data["dimension"] = 1
-    data["index"] = 0
-    js = json.dumps(data)
-    response = requests.post(uri, data=js)
+
 
     # 2) Check if the model you generated is listed in the available models (print it!)
     
