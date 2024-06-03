@@ -96,7 +96,7 @@ int NetworkManager::sendData(uint8_t *data, int dlen)
   assert(offset == tbs);
 
   // Example) edge -> server: temperature (1 byte) || humidity (1 byte) || power (2 bytes) -> total 4 bytes
-  tbs = 4; offset = 0;
+  tbs = dlen; offset = 0;
   while (offset < tbs)
   {
     sent = write(sock, data + offset, tbs - offset);
