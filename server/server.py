@@ -119,7 +119,7 @@ class Server:
         logging.info("[*] Server starts to process the client's request")
 
         ntrain = self.ntrain
-        url = "http://{}:{}/{}/training".format(self.caddr, self.cport, self.name)
+        url = "http://{}:{}/{}/{}/training".format(self.caddr, self.cport, self.name, self.num_epochs)
 
         while True:
             # opcode (1 byte): 
